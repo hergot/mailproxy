@@ -1,6 +1,10 @@
 "use strict";
 
 var net = require('net');
+var argv = require('minimist')(process.argv.slice(2));
+var port = argv['p'] || 5000;
+
+process.stdout.write('Starting at port ' + port + "\n");
 
 net.createServer(function(socket) {
     socket.write('Welcome');
@@ -8,4 +12,4 @@ net.createServer(function(socket) {
     socket.remotePort;
     socket.on('data', function() {});
     socket.on('end', function() {});
-}).listen(5000);
+}).listen(port);
