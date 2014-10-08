@@ -1,6 +1,7 @@
 "use strict";
 
 var net = require('net');
+var os = require("os");
 var argv = require('minimist')(process.argv.slice(2));
 var port = argv['p'] || 5000;
 var CMD_SEPARATOR = "\r\n";
@@ -10,7 +11,7 @@ process.stdout.write('Starting at port ' + port + "\n");
 
 net.createServer(function(socket) {
     var queue = [];
-    socket.write('Welcome to mailproxy' + "\n");
+    socket.write('220 ' + os.hostname() + ' ESMTP MailProxy' + "\n");
     socket.remoteAddress;
     socket.remotePort;
     socket.on('data', function(data) {
