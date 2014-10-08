@@ -9,46 +9,46 @@ var SUPPORTED_COMMANDS = ['HELO', 'EHLO', 'MAIL', 'RCPT', 'DATA', 'RSET', 'NOOP'
 
 process.stdout.write('Starting at port ' + port + "\n");
 
-net.createServer(function(socket) {
+net.createServer(function (socket) {
     var queue = [];
     socket.write('220 ' + os.hostname() + ' ESMTP MailProxy' + "\n");
-    socket.remoteAddress;
-    socket.remotePort;
-    socket.on('data', function(data) {
+    process.stdout.write('Connected socket ' + socket.remoteAddress + ':' + socket.remotePort);
+    socket.on('data', function (data) {
         if (queue.length > 0) {
             var processor = queue.shift();
-            processor(data, function(text) {
-                    socket.write(text);
-                }, function(cb) {
-                    if (cb) {
-                        queue.push(cb);
-                    }
-               }, socket);
+            processor(data, function (text) {
+                socket.write(text);
+            }, function (cb) {
+                if (cb) {
+                    queue.push(cb);
+                }
+            }, socket);
         } else {
-            dispatch(data, function(text) {
-                    socket.write(text);
-                }, function(cb) {
-                    if (cb) {
-                        queue.push(cb);
-                    }
-                }, socket);
+            dispatch(data, function (text) {
+                socket.write(text);
+            }, function (cb) {
+                if (cb) {
+                    queue.push(cb);
+                }
+            }, socket);
         }
     });
-    socket.on('end', function() {
+    socket.on('end', function () {
         process.stdout.write('Socket closed' + "\n");
     });
 }).listen(port);
 
 function dispatch(data, output, cb, socket) {
 //    process.stdout.write('>' + String(data).replace(CMD_SEPARATOR, '') + '<' + "\n");
-    var commandLine = (String(data).replace(CMD_SEPARATOR, ''));
-    var command = commandLine.split(' ')[0];
-    if (SUPPORTED_COMMANDS.indexOf(command.toUpperCase()) === -1) {
+    var commandLine, commandName, command;
+    commandLine = (String(data).replace(CMD_SEPARATOR, ''));
+    commandName = commandLine.split(' ')[0];
+    if (SUPPORTED_COMMANDS.indexOf(commandName.toUpperCase()) === -1) {
     // handle error - not supported command
         output('500 Syntax error, command unrecognised' + CMD_SEPARATOR);
         return;
     }
-    var command = require(__dirname + '/commands/' + command.toLowerCase() + '.js');
+    command = require(__dirname + '/commands/' + commandName.toLowerCase() + '.js');
     command(commandLine, output, cb, socket);
 };
 
